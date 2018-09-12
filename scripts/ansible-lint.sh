@@ -31,6 +31,7 @@ pushd playbooks/
     # Exclude ANSIBLE0006 (tar used in place of unarchive module)
     # Exclude ANSIBLE0013 (Use shell only when shell functionality is required)
     # Exclude ANSIBLE0016 (Tasks that run when changed should likely be handlers)
-    ansible-lint -x ANSIBLE0006,ANSIBLE0013,ANSIBLE0016 *.yml
+    # Exclude tasks tagged with skip_ansible_lint
+    ansible-lint -x ANSIBLE0006,ANSIBLE0013,ANSIBLE0016,skip_ansible_lint *.yml
 popd
 

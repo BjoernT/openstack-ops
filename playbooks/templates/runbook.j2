@@ -1,0 +1,77 @@
+{{rackspace_cloud_tenant_id |default('account-id') }} - customer-name
+===================================
+
+Rackspace Managed OpenStack - RPC-O
+===================================
+
+Account Team
+============
+  * James Do (james.do@example.com) - Role
+
+
+Environment Access
+==================
+
+Management Access
+-----------------
+
+The account is maintained within the rpc-uam inventory.
+Access to the environment is possible with:
+
+    scb ssh <customer> <environment>
+
+The Ansible vault is located at [Password Safe][2]
+
+
+Customer-Wide Documentation
+===========================
+
+Escalation Information
+----------------------
+* Working hours 9am - 5pm TZ (GMT+-X)
+* Customer escalation contacts during business and after hours.
+* Additional information can be found on the [Account Management Guidelines][1]
+
+Maintenance Information
+-----------------------
+* Customer's preferred maintenance windows, practices, contacts, etc
+* To be filled out by account manager/RPC ADM
+
+Business Description
+--------------------
+*  be filled out by account manager/RPC ADM
+
+Business Hours
+--------------
+* 9am - 5pm TZ (GMT+-X)
+
+Customer Contacts
+-----------------
+* Business ([Core](https://core.rackspace.com/py/core/#/account/{{rackspace_cloud_tenant_id |default('account-id') }}/ccontacts))
+  * James Do (james.do@example.com) - Role
+
+* Technical ([Core](https://core.rackspace.com/py/core/#/account/{{rackspace_cloud_tenant_id |default('account-id') }}/ccontacts))
+  * James Do (james.do@example.com) - Role
+
+Relevant Links
+--------------
+[CORE Account][1]
+
+[Ansible Vault][2]
+
+[Customer Website](http://example.com)
+
+
+Implementation Details
+======================
+
+[Handover ticket](https://mbu.rackspace.com/webtools/?search=True&coreTickets={{handover_ticket_id |default('handover-ticket-id')}})
+
+[QC ticket](https://mbu.rackspace.com/webtools/?search=True&coreTickets={{qc_ticket_id |default('qc-ticket-id')}})
+
+[Build Ticket](https://mbu.rackspace.com/webtools/?search=True&coreTickets={{build_ticket_id |default('build-ticket-id')}})
+
+
+[1]: https://core.rackspace.com/py/core/#/account/{{rackspace_cloud_tenant_id |default("account-id")}}
+
+[2]: https://passwordsafe.corp.rackspace.com/projects/{{pws_project_id | default(3708)}}/credentials/{{pws_credential_id |default('pws-credential-id')}}

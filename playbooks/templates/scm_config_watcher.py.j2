@@ -1,0 +1,130 @@
+#!/usr/bin/env python2.7
+
+import logging
+import pyinotify
+import socket
+import signal
+import sys
+from multiprocessing import Process, Queue, Lock
+from time import sleep
+
+# Some defaults
+LOG_FILE = '/var/log/scm_config_watcher.log'
+SCM_DEPLOY = '{{ scm_config_dir }}'
+GIT_MASTER_HOST = SCM_DEPLOY + "git_master_host"
+GIT_SLAVE_HOST = SCM_DEPLOY + "git_slave_host"
+
+# Setup module-wide logging
+logging.basicConfig(filename=LOG_FILE,
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(processName)s - %(message)s')
+
+logger = logging.getLogger('scm_config_watcher')
+
+# Setup a handler to execute tasks based on events
+class SCMConfigEventHandler(pyinotify.ProcessEvent):
+    def __init__(self, queue=None, **kwargs):
+        self.queue = queue
+
+    def process_default(self, event):
+        logger.debug(event)
+        self.queue.put_nowait(event)
+
+
+# Main plumbing class
+class SCMConfigWatcher(object):
+
+    __wm_events = (pyinotify.IN_MODIFY
+                   | pyinotify.IN_CREATE
+                   | pyinotify.IN_DELETE
+                   | pyinotify.IN_MOVED_FROM
+                   | pyinotify.IN_MOVED_TO
+                   | pyinotify.IN_ATTRIB)
+
+
+    def rsyncTaskExecutor(self, queue):
+        self.event_counter = 0
+
+        while True:
+            logger.debug('Waking up')
+            if not queue.empty():
+                while not queue.empty():
+                  queue.get()
+                  self.event_counter += 1
+
+            logger.info("Received %d events" % self.event_counter)
+
+
+            logger.debug('Going to sleep')
+            self.event_counter = 0
+            sleep(30)
+
+
+    def __init__(self, wd='/opt/rpc-config/openstack-config'):
+        # Initialize pyinotify and process plumbing
+        logger.warn('Initializing SCMConfigWatcher for %s' % wd)
+        signal.signal(signal.SIGINT, self.cleanup)
+        signal.signal(signal.SIGTERM, self.cleanup)
+
+        self.qrsync = Queue()
+        self.setup_tasks()
+
+        self.watch_dir = wd
+        self.wm = pyinotify.WatchManager()
+        self.notifier = pyinotify.Notifier(self.wm)
+        self.wm.add_watch(self.watch_dir, self.__wm_events, proc_fun=SCMConfigEventHandler(queue=self.qrsync))
+
+    def setup_tasks(self):
+        self.prsync = Process(target=self.rsyncTaskExecutor, name="rsyncTaskExecutor", args=(self.qrsync,))
+
+    def start_tasks(self):
+        self.prsync.start()
+
+    def get_notifier(self):
+        return self.notifier
+
+    def start(self):
+        if type(self.notifier) is pyinotify.Notifier:
+                self.start_tasks()
+                self.notifier.loop(daemonize=True,
+                                   pid_file='/var/run/scm_config_watcher.pid')
+        else:
+            return False
+
+    def stop(self):
+        if type(self.get_notifier) is pyinotify.Notifier:
+          self.get_notifier.stop()
+        else:
+            return False
+
+    def cleanup(self, signal, frame):
+        logger.warn('Closing SCMConfigWatcher')
+        logger.debug('prsync is_alive: %s' % self.prsync.is_alive())
+        self.qrsync.close()
+
+        logger.warn('Stopping notification loop')
+        self.stop()
+
+        logger.warn('Exiting')
+        sys.exit(0)
+
+    def gitMasterHost(self):
+        with open(GIT_MASTER_HOST) as fh:
+            return fh.readline()
+
+    def gitSlaveHost(self):
+        with open(GIT_SLAVE_HOST) as fh:
+            return fh.readlines()
+
+# main()
+if __name__ == "__main__":
+    watcher = SCMConfigWatcher()
+    hostname = socket.gethostname()
+    print watcher.gitMasterHost()
+    print watcher.gitSlaveHost()
+    if watcher.gitMasterHost() == hostname:
+        watcher.start()
+    else:
+        logger.warn("This host %s is not designated as master host via %s, not monitoring %s"
+                    % (hostname, GIT_MASTER_HOST, SCM_DEPLOY))
+

@@ -32,6 +32,7 @@ Playbooks
 | configure-neutron.yml | None | Setup RPC security group and install neutron debugging tools inside agent container |
 | configure-nova.yml | None | Install standard nova flavor (e.g. m1.small) |
 | configure-spice-console.yml | None | Reinstall the missing CRTL+ALT+DEL Button to login into Windows guests |
+| configure-scm-rpc-config.yml | None | Transfers /etc/openstack_deploy into SCM (git) to /opt/rpc-config |
 | gather-facts.yml | None | Rebuild ansible facts when necessary |
 | fix-lxc-container-bindmount.yml | None | Optional mitigation for RO-4387 on Newton+ containers when needed |
 | install-holland-db-backup.yml| None | Installs Holland DB backup into the galera container |

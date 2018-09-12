@@ -1,0 +1,274 @@
+---
+# Copyright 2018-Present, Rackspace Inc
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Generate infra host list
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  vars_prompt:
+    - name: backup_config_locally
+      prompt: "Do you want to backup the git repo locally (true/false) ?: "
+      private: no
+      default: "no"
+      when: backup_config_locally is undefined
+    - name: environment_prefix
+      prompt: "What is the  prefix for this environment (ie. iad3, lon5) ?: "
+      private: no
+      default: "unkown"
+      when: environment_prefix is undefined
+    - name: ansible_vault_password
+      prompt: "Enter password for new ansible: "
+      private: no
+      when: ansible_vault_password is undefined
+  vars_files:
+    - "vars/main.yml"
+  pre_tasks:
+    - include: "common-tasks/install-dependencies.yml"
+  tasks:
+    - name: Creating facts
+      set_fact:
+        scm_osa_dir: "{{ scm_config_dir }}/{{ environment_prefix }}/config/openstack"
+        scm_backup_config_locally: "{{ backup_config_locally }}"
+        scm_environment_prefix: "{{ environment_prefix }}"
+        scm_ansible_vault_password: "{{ ansible_vault_password |default(lookup('password', 'rpc-config-passwords length=12')) }}"
+
+    - name: Create known infra hosts fact
+      set_fact:
+        _infra_hosts: >
+          {% set _var = [] -%}
+          {% if groups['log_hosts'] |length > 0 -%}
+          {%   for item in groups['log_hosts'] |difference([ansible_hostname]) |default([]) -%}
+          {%     if _var.append(item) -%}
+          {%     endif -%}
+          {%   endfor -%}
+          {% else -%}
+          {%   for item in groups['os-infra_hosts'] |difference([ansible_hostname]) |default([]) -%}
+          {%     if _var.append(item) -%}
+          {%     endif -%}
+          {%   endfor -%}
+          {%   for item in groups['shared-infra_hosts'] |difference([ansible_hostname]) |default([]) -%}
+          {%     if _var.append(item) -%}
+          {%     endif -%}
+          {%   endfor -%}
+          {% endif -%}
+          {{ _var |unique }}
+
+    - name: Create SCM directories
+      file:
+        path: "{{ item }}"
+        state: "directory"
+        owner: "root"
+        group: "root"
+        mode: "0775"
+      with_items:
+        - "{{ scm_config_dir }}"
+        - "{{ scm_osa_dir }}"
+        - "{{ scm_ssh_key_dir }}"
+
+    - name: Check for OSA config symlink
+      stat:
+        path: "{{ osa_deploy_dir }}"
+      register: osa_config_link
+      changed_when: osa_config_link.stat.islnk |bool
+
+    - name: Check for OSA git configuration state
+      stat:
+        path: "{{ osa_deploy_dir }}/.git/info"
+      register: osa_config_git
+      changed_when: osa_config_git.stat.exists |bool
+
+    - name: Check OSA configuration backup
+      stat:
+        path: "{{ osa_deploy_dir }}_pre_git.tar.gz"
+      register: osa_config_backup_state
+      changed_when: not osa_config_backup_state.stat.exists |bool
+      ignore_errors: yes
+
+    - name: Backup OSA (etc) configuration
+      command: |
+        tar czvf {{ osa_deploy_dir }}_pre_git.tar.gz {{ osa_deploy_dir }}
+      register: osa_config_backup
+      changed_when: osa_config_backup.rc == 0
+      when:
+        - (osa_config_backup_state |changed or osa_config_backup_state is undefined)
+        - not osa_config_link |changed
+        - not osa_config_git |changed
+
+    - name: Backup OSA (link source) configuration
+      command: |
+        tar czvf {{ osa_deploy_dir }}_pre_git.tar.gz {{ osa_config_link.stat.lnk_source }}
+      register: osa_config_backup
+      changed_when: osa_config_backup.rc == 0
+      when:
+        - (osa_config_backup_state |changed or osa_config_backup_state is undefined)
+        - osa_config_link |changed
+        - not osa_config_git |changed
+
+    # Skip lint due to the limitation of synchronize module
+    - name: Move OSA (etc) configuration to /opt
+      shell: |
+        LANG=en_US rsync -a --stats . "{{ scm_osa_dir }}/"
+      args:
+        chdir: "{{ osa_deploy_dir }}"
+      register: copy_old_osa_deploy
+      changed_when:
+        - "'Total transferred file size: 0 bytes' not in copy_old_osa_deploy.stdout"
+        - copy_old_osa_deploy.rc == 0
+      when:
+        - (osa_config_backup |changed or not osa_config_backup_state |changed)
+        - not osa_config_link |changed
+        - not osa_config_git |changed
+      tags:
+        - skip_ansible_lint
+
+    - name: Remove OSA (etc) configuration
+      file:
+        path: "{{ osa_deploy_dir }}"
+        state: "absent"
+      when:
+        - (osa_config_backup |changed or not osa_config_backup_state |changed)
+        - not osa_config_link |changed
+        - not osa_config_git |changed
+        - copy_old_osa_deploy |success
+
+    - name: Configure /etc/openstack_deploy link
+      file:
+        src: "{{ scm_osa_dir }}"
+        path: "{{ osa_deploy_dir }}"
+        state: "link"
+      when:
+        - copy_old_osa_deploy |success
+        - not osa_config_link |changed
+
+    - name: Copy SSH keys
+      template:
+        src: 'templates/runbook.j2'
+        dest: "{{ scm_config_dir }}/README.md"
+      when:
+        - not osa_config_git |changed
+
+    - name: Installing runbook template
+      template:
+        src: 'templates/runbook.j2'
+        dest: "{{ scm_config_dir }}/README.md"
+      when:
+        - not osa_config_git |changed
+
+    - name: Initialize SCM (git) repo
+      shell: |
+        git init
+      args:
+        chdir: "{{ scm_config_dir }}"
+      register: git_repo_init
+      changed_when: git_repo_init.rc == 0
+      when: not osa_config_git |changed
+      tags:
+        - skip_ansible_lint
+
+    - name: Populate gitignore
+      lineinfile:
+        dest: '{{ scm_config_dir }}/.gitignore'
+        create: 'yes'
+        line: "{{ item }}"
+      with_items:
+        - "*.retry"
+        - "**/ansible_facts/*"
+        - "user_osa_secrets.yml.tar"
+        - "user_rpco_secrets.yml.tar"
+        - "user_variables.yml.tar"
+        - "user_secrets.yml.tar"
+        - "backup_openstack_inventory.tar"
+        - "backup_rpc_inventory.tar"
+      when: git_repo_init |changed
+
+    - name: Add authoritative host information
+      lineinfile:
+        dest: "{{ scm_config_dir }}/git_master_host"
+        create: 'yes'
+        line: "{{ ansible_hostname }}"
+      when:
+        - git_repo_init |changed
+        - scm_backup_config_locally |bool
+
+    - name: Add backup host information
+      lineinfile:
+        dest: "{{ scm_config_dir }}/git_slave_host"
+        create: 'yes'
+        line: "{{ item }}"
+      with_items: "{{ _infra_hosts }}"
+      when:
+        - git_repo_init |changed
+        - scm_backup_config_locally |bool
+
+    - name: Adding files to SCM (git)
+      shell: |
+        git add -A * .gitignore
+      args:
+        chdir: "{{ scm_config_dir }}"
+      register: git_initial_add
+      changed_when: git_initial_add.rc <= 1
+      failed_when: git_initial_add.rc > 1
+      when: git_repo_init |changed
+      tags:
+        - skip_ansible_lint
+
+    - name: Check SCM commit status
+      shell: |
+        LANG=en_US git status
+      args:
+        chdir: "{{ scm_config_dir }}"
+      register: git_status
+      changed_when: "'Changes to be committed' in git_status.stdout"
+      tags:
+        - skip_ansible_lint
+
+    - name: Initial SCM commit
+      shell: |
+        {{ item }}
+      args:
+        chdir: "{{ scm_config_dir }}"
+      with_items:
+        - "git config user.name 'Rackspace Managed Service'"
+        - "git config user.email '<>'"
+        - "git commit -a -m 'Initial automated commit via openstack-ops module'"
+      register: git_initial_commit
+      changed_when: git_initial_commit.rc == 0
+      when: git_status |changed
+      tags:
+        - skip_ansible_lint
+
+    # Skip lint due to the limitation of synchronize module
+    # to push over SSH
+    - name: Distribute git repo to backup hosts
+      shell: |
+        LANG=en_US rsync -a --stats {{ scm_config_dir }} {{ item }}:/opt/
+      with_items: "{{ _infra_hosts }}"
+      register: scm_backup_task
+      changed_when:
+        - "'Total transferred file size: 0 bytes' not in scm_backup_task.stdout"
+        - scm_backup_task.rc == 0
+      when:
+        - _infra_hosts |length > 0
+        - scm_backup_config_locally |bool
+      tags:
+        - skip_ansible_lint
+
+# Currently not fully implemented as
+# most environments will be pushed to git right away
+#    - name: Copy scm_config_watcher.py
+#      template:
+#        src: "templates/scm_config_watcher.py.j2"
+#        dest: "/usr/local/bin/scm_config_watcher.py"
+#        mode: "0775"

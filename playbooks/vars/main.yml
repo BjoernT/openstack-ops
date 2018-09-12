@@ -44,6 +44,7 @@ ops_apt_host_packages:
   - ntpdate
   - vlan
   - python-pip
+  - git
 
 ops_neutron_debug_packages:
   - iputils-arping
@@ -56,7 +57,6 @@ ops_venv_bin: "{{ ops_venv }}/bin"
 ops_pip_venv_enabled: True
 
 
-
 # kernel modules required on hosts
 ops_host_kernel_modules:
   - bonding
@@ -67,3 +67,9 @@ ops_host_kernel_sysctl:
   - { key: 'net.ipv4.ip_forward', value: 1 }
   - { key: 'net.ipv4.conf.all.rp_filter', value: 0 }
   - { key: 'net.ipv4.conf.default.rp_filter', value: 0 }
+
+# Which directory is used as OSA config directory
+osa_deploy_dir: "/etc/openstack_deploy"
+scm_config_dir: "/opt/rpc-config"
+scm_osa_dir: "{{ scm_config_dir }}/{{ environment_prefix }}/configs/openstack"
+scm_ssh_key_dir: "{{ scm_config_dir }}/{{ environment_prefix }}/configs/ssh"
