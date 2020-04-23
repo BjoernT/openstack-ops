@@ -90,14 +90,6 @@ firmwares["ProLiant DL360 Gen9"] = {
         "inp": "y\nn\n",
         "ret": 1
     },
-    "SYSTEM-MELTDOWN": {
-        "check": "hpasmcli -s \"show server\" | grep ROM | cut -d: -f2- | tr -d ' '",
-        "ver": "10/21/2019",
-        "fwpkg": "hp-firmware-system-p89-2.76_2019_10_21-1.1.i386.rpm",
-        "md5": "952e3b3244dd818084fbd09cc3f8c14e",
-        "inp": "y\nn\n",
-        "ret": 1
-    },
     "RAID": {
         "check": "ssacli controller all show config detail | grep -i firmware\ version | cut -d: -f2 | tr -d ' '| head -1",
         "ver": "7.00",
@@ -115,36 +107,30 @@ firmwares["ProLiant DL360 Gen9"] = {
         "ret": 0
     },
     "INIC": {
-        "ver": {
-            "560FLB": "800008F0",
-            "560FLR-SFP+": "80000838",
-            "560SFP+": "80000835",
-            "560M": "8000083D",
-            "561FLR-T": "800005B6",
-            "561T": "80000636",
-            "562i": "800006FC",
-            "562FLR-SFP+": "800038C9",
-            "562SFP+": "800038C8",
-            "563i": "800035C0"
-        },
-        "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm",
-        "md5": "c2af9badd28debbee468486ecac9fc4e",
-        "ret": 1
+       "560FLB": { "ver": "800008F0", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "560FLR-SFP+": { "ver": "80000838", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "560SFP+": { "ver": "80000838", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "560M": { "ver": "8000083D", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "561FLR-T": { "ver": "800005B6", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "561T": { "ver": "80000636", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "562i": { "ver": "800006FC", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "562FLR-SFP+": { "ver": "8000641A", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "562FLR-T": { "ver": "80000F56", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "562SFP+": { "ver": "80006424", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "562T": { "ver": "80000F55", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "563i": { "ver": "800035C0", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "568i": { "ver": "80001DEE", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "568FLR-MMSFP+": { "ver": "80001DE9", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "568FLR-MMT": { "ver": "80001DE9", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm": { "md5": "c2af9badd28debbee468486ecac9fc4e", "ret": 1 },
+       "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm": { "md5": "bf479b6ec8105c284b169c7d67d55e6b", "ret": 1 }
     }
 }
 
 firmwares["ProLiant DL380 Gen9"] = copy.deepcopy(
     firmwares["ProLiant DL360 Gen9"])
-firmwares["ProLiant DL380 Gen9"]["SYSTEM"] = {
-    "check": "hpasmcli -s \"show server\" | grep ROM | cut -d: -f2- | tr -d ' '",
-    "ver": "02/17/2017",
-    "fwpkg": "hp-firmware-system-p89-2.40_2017_02_17-2.1.i386.rpm",
-    "md5": "4506ed3576c05989070fbe75bb58d65e",
-    "inp": "y\nn\n",
-    "ret": 1
-}
 
-firmwares["ProLiant DL380 Gen9"]["SYSTEM-MELTDOWN"] = {
+firmwares["ProLiant DL380 Gen9"]["SYSTEM"] = {
     "check": "hpasmcli -s \"show server\" | grep ROM | cut -d: -f2- | tr -d ' '",
     "ver": "10/21/2019",
     "fwpkg": "hp-firmware-system-p89-2.76_2019_10_21-1.1.i386.rpm",
@@ -173,14 +159,6 @@ firmwares["ProLiant DL360 Gen10"] = {
         "inp": "y\nn\n",
         "ret": 1
     },
-    "SYSTEM-MELTDOWN": {
-        "check": "ipmitool fru |grep 'MB BIOS' -A5 |awk -F ': ' '/Product Version/ {print $2}'",
-        "ver": "10/21/2019",
-        "fwpkg": "hp-firmware-system-u32-2.22_2019_11_13-1.1.x86_64.rpm",
-        "md5": "b5222bb8f139229bcf06177c817772f5",
-        "inp": "y\nn\n",
-        "ret": 1
-    },
     "RAID": {
         "check": "ssacli controller all show config detail | grep -i firmware\ version | cut -d: -f2 | tr -d ' '| head -1",
         "ver": "2.62",
@@ -198,36 +176,30 @@ firmwares["ProLiant DL360 Gen10"] = {
         "ret": 0
     },
     "INIC": {
-        "ver": {
-            "560FLB": "800008F0",
-            "560FLR-SFP+": "80000838",
-            "560SFP+": "80000835",
-            "560M": "8000083D",
-            "561FLR-T": "800005B6",
-            "561T": "80000636",
-            "562i": "800006FC",
-            "562FLR-SFP+": "800038C9",
-            "562SFP+": "800038C8",
-            "563i": "800035C0"
-        },
-        "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm",
-        "md5": "c2af9badd28debbee468486ecac9fc4e",
-        "ret": 1
+       "560FLB": { "ver": "800008F0", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "560FLR-SFP+": { "ver": "80000838", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "560SFP+": { "ver": "80000838", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "560M": { "ver": "8000083D", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "561FLR-T": { "ver": "800005B6", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "561T": { "ver": "80000636", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "562i": { "ver": "800006FC", "fwpkg": "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm" },
+       "562FLR-SFP+": { "ver": "8000641A", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "562FLR-T": { "ver": "80000F56", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "562SFP+": { "ver": "80006424", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "562T": { "ver": "80000F55", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "563i": { "ver": "800035C0", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "568i": { "ver": "80001DEE", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "568FLR-MMSFP+": { "ver": "80001DE9", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "568FLR-MMT": { "ver": "80001DE9", "fwpkg": "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm" },
+       "hp-firmware-nic-intel-1.16.0-1.1.x86_64.rpm": { "md5": "c2af9badd28debbee468486ecac9fc4e", "ret": 1 },
+       "hp-firmware-nic-intel-1.19.11-1.1.x86_64.rpm": { "md5": "bf479b6ec8105c284b169c7d67d55e6b", "ret": 1 }
     }
 }
 
 firmwares["ProLiant DL380 Gen10"] = copy.deepcopy(
     firmwares["ProLiant DL360 Gen10"])
-firmwares["ProLiant DL380 Gen10"]["SYSTEM"] = {
-    "check": "ipmitool fru |grep 'MB BIOS' -A5 |awk -F ': ' '/Product Version/ {print $2}'",
-    "ver": "11/13/2019",
-    "fwpkg": "hp-firmware-system-u30-2.22_2019_11_13-1.1.x86_64.rpm",
-    "md5": "071d68e372601a62ecaee54bf119daf8",
-    "inp": "y\nn\n",
-    "ret": 1
-}
 
-firmwares["ProLiant DL380 Gen10"]["SYSTEM-MELTDOWN"] = {
+firmwares["ProLiant DL380 Gen10"]["SYSTEM"] = {
     "check": "ipmitool fru |grep 'MB BIOS' -A5 |awk -F ': ' '/Product Version/ {print $2}'",
     "ver": "11/13/2019",
     "fwpkg": "hp-firmware-system-u30-2.22_2019_11_13-1.1.x86_64.rpm",
@@ -250,8 +222,6 @@ def parse_args(args):
                         action="store_const", const=True, default=False)
     parser.add_argument("-r", help="Generate JSON report of current versions", dest="report", action="store_const",
                         const=True, default=False)
-    parser.add_argument("--meltdown", help="Use a firmware mitigated for Meltdown/Spectre", dest="use_meltdown", action="store_const",
-                        const=True, default=True)
     parser.add_argument("--NIC", help="Flash NIC firmware",
                         dest="do", action="append_const", const="NIC")
     parser.add_argument("--SYS", help="Flash System BIOS",
@@ -372,6 +342,116 @@ def instPackages(packages={}):
                 else:
                     print("Success!")
 
+def downloadFlash(sysType = None, part = None, url = None, model = None):
+    if sysType is None or part is None or url is None:
+        print("No parameters found for downloadFlash")
+        exit(255)
+
+    print("{}".format(url))
+    sys.stdout.write("Downloading {} ".format(
+        firmwares[sysType][part]["fwpkg"]))
+    sys.stdout.flush()
+    try:
+        r = requests.get(url)
+    except:
+        print("Failed!  Aborting.")
+        exit(3)
+
+    fileName = "./{}".format(firmwares[sysType][part]["fwpkg"])
+    if part == "INIC":
+        fileName = "./{}".format(firmwares[sysType][part][model]["fwpkg"])
+
+    md5Hash = firmwares[sysType][part]["fwpkg"]
+    if part == "INIC":
+        md5Hash = firmwares[sysType][part][fileName]["md5"]
+
+    try:
+
+        with open(fileName, "wb") as pkg:
+            pkg.write(r.content)
+    except IOError:
+        print("Unable to write file {}. Aborting.".format(
+            fileName))
+        exit(4)
+    else:
+        print(" -> Success!")
+
+    # Check MD5Sum
+    sys.stdout.write("Checking MD5: ")
+    sys.stdout.flush()
+
+    md5sumCmd = "/usr/bin/env md5sum {}".format(fileName)
+
+    p = subprocess.Popen(md5sumCmd, stdin=PIPE,
+                         stdout=PIPE, stderr=PIPE, shell=True)
+    (md5, err) = p.communicate()
+
+    md5 = md5.decode(encoding='UTF-8')
+    if md5.split(" ")[0] == md5Hash:
+        print("Match!")
+    else:
+        print("Mismatch!  Report this to the author of https://github.com/rcbops/openstack-ops/OWNERS")
+        exit(66)
+
+    sys.stdout.write("Extracting firmware: ")
+    sys.stdout.flush()
+
+    try:
+        os.mkdir("{}/{}".format(workDir, part))
+    except:
+        pass
+
+    try:
+        os.chdir("{}/{}".format(workDir, part))
+    except:
+        print("Unable to chdir {}/{}. Aborting.".format(workDir, part))
+        continue
+
+    extractCmd = "rpm2cpio {}/{} | cpio -id".format(
+        workDir, firmwares[sysType][part]["fwpkg"])
+    extractProc = subprocess.Popen(
+        extractCmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
+
+    (stdout, stderr) = extractProc.communicate()
+
+    stdout = stdout.decode(encoding='UTF-8')
+    if extractProc.returncode != 0:
+        print("Failed! {}".format(stderr.decode(encoding='UTF-8')))
+    else:
+        print("Success!")
+        sys.stdout.write("Flashing...")
+        sys.stdout.flush()
+
+        dirCmd = "dirname {}/{}/usr/lib/*/*firmware-*/hpsetup".format(
+            workDir, part)
+        dirProc = subprocess.Popen(dirCmd, stdout=PIPE, shell=True)
+        (flashDir, stderr) = dirProc.communicate()
+
+        flashDir = flashDir.decode(encoding='UTF-8')
+        try:
+            os.chdir(flashDir.strip())
+        except OSError as err:
+            print("Failed - cannot chdir to \"{}\", {}".format(
+                flashDir.strip(), err.strerror))
+
+        flashProc = subprocess.Popen(["/usr/bin/env", "bash", "./hpsetup"], stdout=PIPE, stderr=PIPE,
+                                     stdin=PIPE)
+        (stdout, stderr) = flashProc.communicate(
+            firmwares[sysType][part]["inp"].encode(encoding='UTF-8'))
+
+        stdout = stdout.decode(encoding='UTF-8')
+        if flashProc.returncode == firmwares[sysType][part]["ret"]:
+            print("Success!")
+        else:
+            print("Failed!")
+
+        print("Writing log to {}/{}.log".format(workDir, part))
+
+        with open("{}/{}.log".format(workDir, part), "w+") as fp:
+            fp.write(stdout)
+            fp.write(stderr.decode(encoding='UTF-8'))
+
+        os.chdir(workDir)
 
 def main(debug=False, **kwargs):
     """Run the main application.
@@ -435,7 +515,7 @@ def main(debug=False, **kwargs):
             except:
                 pass
 
-            if "Ethernet Controller 10-Gigabit X540-AT2" in productName and \
+            if productName.startswith("Ethernet Controller 10-Gigabit") and \
                 "Intel Corporation" in vendorName and logicalName:
                 slot = busInfo.split(':')[1] +":"+ busInfo.split(':')[2]
                 inics[slot] = {}
@@ -445,7 +525,7 @@ def main(debug=False, **kwargs):
                 out = s.communicate()[0].strip().decode(encoding='UTF-8')
                 for x in re.split('\n\n', out):
                     try:
-                        model = re.search('56[0-3][A-Z,i]{1,3}-?[A-Z]{0,3}\+?', x).group(0)
+                        model = re.search('56[0-8][A-Z,i]{1,3}-?[A-Z]{0,5}\+?', x).group(0)
                     except IndexError:
                         print("Could not find the model number for the nic in slot {}.".format(slot))
                         nicError = True
@@ -489,9 +569,6 @@ def main(debug=False, **kwargs):
         report[servernum] = {}
         for part in firmwares[sysType]:
             if not part == 'INIC':
-                if part == 'SYSTEM' and args.use_meltdown:
-                    part = 'SYSTEM-MELTDOWN'
-
                 verProc = subprocess.Popen(firmwares[sysType][part]["check"], stdin=PIPE, stdout=PIPE, stderr=PIPE,
                                            shell=True)
                 (version, stderr) = verProc.communicate()
@@ -517,9 +594,9 @@ def main(debug=False, **kwargs):
                         "Model": inics[nic]['Model'],
                         "Names": inics[nic]['Names'],
                         "Installed": inics[nic]['NVM'],
-                        "Available": firmwares[sysType]["INIC"]["ver"][inics[nic]['Model']]
+                        "Available": firmwares[sysType]["INIC"][inics[nic]['Model']]['ver']
                     })
-                    if inics[nic]['NVM'] != firmwares[sysType]["INIC"]["ver"][inics[nic]['Model']]:
+                    if inics[nic]['NVM'] != firmwares[sysType]["INIC"][inics[nic]['Model']]['ver']:
                         sysCurrent = False
         report[servernum]["Current"] = sysCurrent
         print("{}".format(json.dumps(report)))
@@ -529,10 +606,6 @@ def main(debug=False, **kwargs):
     if not args.report:
         for part in args.do:
             partUpdate = False
-
-            if part == 'SYSTEM' and args.use_meltdown:
-                part = 'SYSTEM-MELTDOWN'
-
             if not part == 'INIC':
                 sys.stdout.write("\n")
                 sys.stdout.write("Verifying current {} version: ".format(part))
@@ -560,114 +633,25 @@ def main(debug=False, **kwargs):
                 print("")
                 print("Verifying current Intel 10G NIC Versions: ")
                 for nic in inics:
-                    if inics[nic]['NVM'] == firmwares[sysType]["INIC"]["ver"][inics[nic]['Model']]:
+                    if inics[nic]['NVM'] == firmwares[sysType]["INIC"][inics[nic]['Model']]['ver']:
                         print(" {} already current. Nothing to do.".format(
                             inics[nic]['Names']))
                     else:
                         needsUpdate = True
                         partUpdate = True
                         print(" {} needs update ({} -> {})".format(inics[nic]['Names'], inics[nic]['NVM'],
-                                                                   firmwares[sysType]["INIC"]["ver"][inics[nic]['Model']]))
+                                                                   firmwares[sysType]["INIC"][inics[nic]['Model']]['ver']))
 
             if args.flash and partUpdate:
                 # Download the firmwares
-                url = "{}{}".format(baseUrl, firmwares[sysType][part]["fwpkg"])
-                print("{}".format(url))
-                sys.stdout.write("Downloading {} ".format(
-                    firmwares[sysType][part]["fwpkg"]))
-                sys.stdout.flush()
-                try:
-                    r = requests.get(url)
-                except:
-                    print("Failed!  Aborting.")
-                    exit(3)
-
-                try:
-                    with open("./{}".format(firmwares[sysType][part]["fwpkg"]), "wb") as pkg:
-                        pkg.write(r.content)
-                except IOError:
-                    print("Unable to write file {}. Aborting.".format(
-                        firmwares[sysType][part]["fwpkg"]))
-                    exit(4)
+                if not part == "INIC":
+                    url = "{}{}".format(baseUrl, firmwares[sysType][part]["fwpkg"])
+                    downloadFlash(sysType, part, url)
                 else:
-                    print(" -> Success!")
-
-                # Check MD5Sum
-                sys.stdout.write("Checking MD5: ")
-                sys.stdout.flush()
-
-                md5sumCmd = "/usr/bin/env md5sum {}".format(
-                    firmwares[sysType][part]["fwpkg"])
-                p = subprocess.Popen(md5sumCmd, stdin=PIPE,
-                                     stdout=PIPE, stderr=PIPE, shell=True)
-                (md5, err) = p.communicate()
-
-                md5 = md5.decode(encoding='UTF-8')
-                if md5.split(" ")[0] == firmwares[sysType][part]["md5"]:
-                    print("Match!")
-                else:
-                    print("Mismatch!  Report this to the author of https://github.com/rcbops/openstack-ops/OWNERS")
-                    exit(66)
-
-                sys.stdout.write("Extracting firmware: ")
-                sys.stdout.flush()
-
-                try:
-                    os.mkdir("{}/{}".format(workDir, part))
-                except:
-                    pass
-
-                try:
-                    os.chdir("{}/{}".format(workDir, part))
-                except:
-                    print("Unable to chdir {}/{}. Aborting.".format(workDir, part))
-                    continue
-
-                extractCmd = "rpm2cpio {}/{} | cpio -id".format(
-                    workDir, firmwares[sysType][part]["fwpkg"])
-                extractProc = subprocess.Popen(
-                    extractCmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
-
-                (stdout, stderr) = extractProc.communicate()
-
-                stdout = stdout.decode(encoding='UTF-8')
-                if extractProc.returncode != 0:
-                    print("Failed! {}".format(stderr.decode(encoding='UTF-8')))
-                else:
-                    print("Success!")
-                    sys.stdout.write("Flashing...")
-                    sys.stdout.flush()
-
-                    dirCmd = "dirname {}/{}/usr/lib/*/*firmware-*/hpsetup".format(
-                        workDir, part)
-                    dirProc = subprocess.Popen(dirCmd, stdout=PIPE, shell=True)
-                    (flashDir, stderr) = dirProc.communicate()
-
-                    flashDir = flashDir.decode(encoding='UTF-8')
-                    try:
-                        os.chdir(flashDir.strip())
-                    except OSError as err:
-                        print("Failed - cannot chdir to \"{}\", {}".format(
-                            flashDir.strip(), err.strerror))
-
-                    flashProc = subprocess.Popen(["/usr/bin/env", "bash", "./hpsetup"], stdout=PIPE, stderr=PIPE,
-                                                 stdin=PIPE)
-                    (stdout, stderr) = flashProc.communicate(
-                        firmwares[sysType][part]["inp"].encode(encoding='UTF-8'))
-
-                    stdout = stdout.decode(encoding='UTF-8')
-                    if flashProc.returncode == firmwares[sysType][part]["ret"]:
-                        print("Success!")
-                    else:
-                        print("Failed!")
-
-                    print("Writing log to {}/{}.log".format(workDir, part))
-
-                    with open("{}/{}.log".format(workDir, part), "w+") as fp:
-                        fp.write(stdout)
-                        fp.write(stderr.decode(encoding='UTF-8'))
-
-                    os.chdir(workDir)
+                    for nics in inics:
+                        fwname = firmwares[sysType]["INIC"][inics[nic]['Model']]['fwpkg']
+                        url = "{}{}".format(baseUrl, firmwares[sysType]["INIC"][inics[nic][fwname])
+                        downloadFlash(sysType, part, url, nics)
 
         print("")
 
